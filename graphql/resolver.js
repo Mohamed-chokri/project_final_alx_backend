@@ -4,11 +4,11 @@ const Exam = require('../models/Exams');
 
 const resolvers = {
   Query: {
-    user: (parent, args) => User.findById(args.id),
+    user: (_, args) => User.findById(args.id),
     users: () => User.find(),
-    course: (parent, args) => Course.findById(args.id),
+    course: (_, args) => Course.findById(args.id),
     courses: () => Course.find(),
-    exam: (parent, args) => Exam.findById(args.id),
+    exam: (_, args) => Exam.findById(args.id),
     exams: () => Exam.find(),
   },
   

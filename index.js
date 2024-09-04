@@ -35,3 +35,5 @@ const startServer = async () => {
 
 // Start the server
 startServer();
+console.log(typeDefs);
+console.log(resolvers);
