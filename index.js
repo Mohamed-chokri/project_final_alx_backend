@@ -4,26 +4,34 @@ const mongoose = require('mongoose');
 const typeDefs = require('./graphql/typdefs'); // Path to your typeDefs
 const resolvers = require('./graphql/resolver'); // Path to your resolvers
 
-const app = express();
+const startServer = async () => {
+  const app = express();
 
-// Create an instance of ApolloServer
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-});
+  // Create an instance of ApolloServer
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+  });
 
-// Apply middleware to connect Apollo Server with Express
-server.applyMiddleware({ app });
+  // Start the Apollo server
+  await server.start();
 
-// Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  // Apply middleware to connect Apollo Server with Express
+  server.applyMiddleware({ app });
 
-// Start the Express server
-app.listen({ port: 4000 }, () =>
-  console.log(`Server ready at http://localhost:4000${server.graphqlPath}`)
-);
+  // Connect to MongoDB
+  mongoose.connect('mongodb://localhost:27017/', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.error('MongoDB connection error:', err));
+
+  // Start the Express server
+  app.listen({ port: 4000 }, () =>
+    console.log(`Server ready at http://localhost:4000${server.graphqlPath}`)
+  );
+};
+
+// Start the server
+startServer();

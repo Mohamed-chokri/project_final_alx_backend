@@ -56,9 +56,9 @@ const typeDefs = gql`
   }
 
   input QuestionInput {
-    questionText: String
+    questionText: String!
     options: [String]
-    correctAnswer: String
+    correctAnswer: String!
   }
 `;
 
