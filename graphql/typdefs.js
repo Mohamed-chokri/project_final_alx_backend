@@ -40,13 +40,31 @@ const typeDefs = gql`
     correctAnswer: String!
   }
 
+  type UserConnection {
+      users: [User!]!
+      totalPages: Int!
+      currentPage: Int!
+  }
+
+  type CourseConnection {
+      courses: [Course!]!
+      totalPages: Int!
+      currentPage: Int!
+  }
+
+  type ExamConnection {
+      exams: [Exam!]!
+      totalPages: Int!
+      currentPage: Int!
+  }
+
   type Query {
-    user(id: ID!): User
-    users: [User]
-    course(id: ID!): Course
-    courses: [Course]
-    exam(id: ID!): Exam
-    exams: [Exam]
+      user(id: ID!): User
+      users(page: Int, limit: Int): UserConnection!
+      course(id: ID!): Course
+      courses(page: Int, limit: Int): CourseConnection!
+      exam(id: ID!): Exam
+      exams(page: Int, limit: Int): ExamConnection!
   }
 
   type Mutation {

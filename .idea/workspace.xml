@@ -5,9 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8701d1f4-47fe-441b-ba04-0b96ef373159" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/loaders/dataloaders.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/graphql/resolver.js" beforeDir="false" afterPath="$PROJECT_DIR$/graphql/resolver.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/graphql/typdefs.js" beforeDir="false" afterPath="$PROJECT_DIR$/graphql/typdefs.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/loaders/dataloaders.js" beforeDir="false" afterPath="$PROJECT_DIR$/loaders/dataloaders.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,6 +80,8 @@
       <workItem from="1725454606181" duration="8602000" />
       <workItem from="1725483617606" duration="8647000" />
       <workItem from="1725493203121" duration="3018000" />
+      <workItem from="1725496297457" duration="258000" />
+      <workItem from="1725524283011" duration="10533000" />
     </task>
     <servers />
   </component>
