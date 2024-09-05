@@ -17,13 +17,10 @@ const startServer = async () => {
     })
   });
 
-  // Start the Apollo server
   await server.start();
 
-  // Apply middleware to connect Apollo Server with Express
   server.applyMiddleware({ app });
 
-  // Connect to MongoDB
   mongoose.connect('mongodb://localhost:27017/School', {
     useNewUrlParser: true,
     useUnifiedTopology: true,

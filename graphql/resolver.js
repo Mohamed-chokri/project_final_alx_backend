@@ -1,6 +1,6 @@
-const User = require('../models/User');
-const Course = require('../models/Courses');
-const Exam = require('../models/Exams');
+import User from '../models/Users.js';
+import Course from '../models/Courses.js';
+import Exam from '../models/Exams.js';
 
 const resolvers = {
   Query: {
@@ -112,4 +112,5 @@ const resolvers = {
     createdBy: (parent, _, { loaders }) => loaders.userLoader.load(parent.createdBy),
   },
 };
-module.exports = { resolvers };
+
+export default resolvers;

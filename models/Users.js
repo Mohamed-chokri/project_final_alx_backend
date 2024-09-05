@@ -9,6 +9,6 @@ const userSchema = new mongoose.Schema({
   createdExams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exam' }],
 });
 
-const User = mongoose.model('User', userSchema);
+const Users = mongoose.model('User', userSchema);
 
-module.exports = User;
+export default Users;

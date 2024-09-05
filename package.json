@@ -2,7 +2,8 @@
   "name": "project_final_alx_backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "type": "module",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,9 +12,10 @@
   "license": "ISC",
   "dependencies": {
     "apollo-server-express": "^3.13.0",
+    "dataloader": "^2.2.2",
     "express": "^4.19.2",
-    "express-graphql": "^0.12.0",
     "graphql": "^16.9.0",
-    "mongoose": "^8.6.0"
+    "mongoose": "^8.6.1",
+    "socket.io": "^4.7.5"
   }
 }

@@ -1,7 +1,7 @@
-const DataLoader = require('dataloader');
-const User = require('../models/User');
-const Course = require('../models/Courses');
-const Exam = require('../models/Exams');
+import DataLoader from 'dataloader';
+import User from '../models/Users.js';
+import Course from '../models/Courses.js';
+import Exam from '../models/Exams.js';
 
 const batchFunction = (Model) => async (ids) => {
   const items = await Model.find({ _id: { $in: ids } }).lean();
@@ -18,4 +18,4 @@ const createLoaders = () => ({
   examLoader: new DataLoader(batchFunction(Exam)),
 });
 
-module.exports = { createLoaders };
+export default createLoaders;

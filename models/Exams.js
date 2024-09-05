@@ -1,4 +1,4 @@
-const mongoose = require('mongoose'); // Import mongoose
+import mongoose from 'mongoose'
 
 const examSchema = new mongoose.Schema({
   title: { type: String, required: true },
@@ -15,4 +15,4 @@ const examSchema = new mongoose.Schema({
 
 const Exam = mongoose.model('Exam', examSchema);
 
-module.exports = Exam;
+export default Exam;

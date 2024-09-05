@@ -1,10 +1,10 @@
-const mongoose = require('mongoose'); // Import mongoose
+import mongoose from 'mongoose'
 
 const courseSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
   instructor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  lessons: [{ 
+  lessons: [{
     title: String,
     content: String
   }],
@@ -15,4 +15,4 @@ const courseSchema = new mongoose.Schema({
 
 const Course = mongoose.model('Course', courseSchema);
 
-module.exports = Course;
+export default Course;
