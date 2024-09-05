@@ -1,9 +1,9 @@
-const { ApolloServer } = require('apollo-server-express');
-const express = require('express');
-const mongoose = require('mongoose');
-const typeDefs = require('./graphql/typdefs'); // Path to your typeDefs
-const { resolvers }  = require('./graphql/resolver'); // Path to your resolvers
-const { createLoaders } = require('./loaders/dataloaders');  // Adjust the path accordingly
+import { ApolloServer } from 'apollo-server-express';
+import express from 'express';
+import mongoose from 'mongoose';
+import typeDefs from './graphql/typdefs.js';
+import resolvers from './graphql/resolver.js';
+import createLoaders from './loaders/dataloaders.js'
 
 const startServer = async () => {
   const app = express();
