@@ -2,7 +2,8 @@ const { ApolloServer } = require('apollo-server-express');
 const express = require('express');
 const mongoose = require('mongoose');
 const typeDefs = require('./graphql/typdefs'); // Path to your typeDefs
-const resolvers = require('./graphql/resolver'); // Path to your resolvers
+const { resolvers }  = require('./graphql/resolver'); // Path to your resolvers
+const { createLoaders } = require('./loaders/dataloaders');  // Adjust the path accordingly
 
 const startServer = async () => {
   const app = express();
@@ -11,6 +12,9 @@ const startServer = async () => {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
+    context: () => ({
+      loaders: createLoaders(),
+    })
   });
 
   // Start the Apollo server
@@ -20,16 +24,16 @@ const startServer = async () => {
   server.applyMiddleware({ app });
 
   // Connect to MongoDB
-  mongoose.connect('mongodb://localhost:27017/', {
+  mongoose.connect('mongodb://localhost:27017/School', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error('MongoDB connection error:', err));
+      .then(() => console.log('MongoDB connected'))
+      .catch(err => console.error('MongoDB connection error:', err));
 
-  // Start the Express server
-  app.listen({ port: 4000 }, () =>
-    console.log(`Server ready at http://localhost:4000${server.graphqlPath}`)
+  const PORT = process.env.PORT || 4000;
+  app.listen({ port: PORT }, () =>
+      console.log(`Server ready at http://localhost:${PORT}${server.graphqlPath}`)
   );
 };
 
