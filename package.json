@@ -15,7 +15,10 @@
     "dataloader": "^2.2.2",
     "express": "^4.19.2",
     "graphql": "^16.9.0",
+    "graphql-subscriptions": "^2.0.0",
+    "http": "^0.0.1-security",
     "mongoose": "^8.6.1",
-    "socket.io": "^4.7.5"
+    "socket.io": "^4.7.5",
+    "subscriptions-transport-ws": "^0.11.0"
   }
 }

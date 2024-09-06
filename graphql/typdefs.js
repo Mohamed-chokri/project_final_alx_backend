@@ -57,6 +57,13 @@ const typeDefs = gql`
       totalPages: Int!
       currentPage: Int!
   }
+  
+  type Message{
+      id: ID!
+      content: String!
+      sender: User!
+      createdAt: String!
+  }
 
   type Query {
       user(id: ID!): User
@@ -65,18 +72,23 @@ const typeDefs = gql`
       courses(page: Int, limit: Int): CourseConnection!
       exam(id: ID!): Exam
       exams(page: Int, limit: Int): ExamConnection!
+      messages(limit: Int): [Message]!
   }
 
   type Mutation {
     addUser(fullName: String!, email: String!, password: String!, role: String!): User
     addCourse(title: String!, description: String!, instructorId: ID!): Course
     addExam(title: String!, courseId: ID!, questions: [QuestionInput], createdById: ID!, duration: String!): Exam
+    sendMessage(content: String, senderId: ID!): Message!  
   }
 
   input QuestionInput {
     questionText: String!
     options: [String]
     correctAnswer: String!
+  }
+  type Subscription {
+      newMessage: Message!
   }
 `;
 

@@ -1,8 +1,14 @@
 import User from '../models/Users.js';
 import Course from '../models/Courses.js';
 import Exam from '../models/Exams.js';
+import chatController from '../controllers/chatController.js'
+import { PubSub } from "graphql-subscriptions";
+
+const pubsub =  new PubSub();
+const NEW_MESSAGE = 'NEW_MESSAGE';
 
 const resolvers = {
+  //here normally the queries (parent if exists, id, loader context)
   Query: {
     user: (_, { id }, { loaders }) => loaders.userLoader.load(id),
     users: async (_, { page = 1, limit = 10 }) => {
@@ -43,10 +49,14 @@ const resolvers = {
         currentPage: page
       };
     },
+    messages: async (_, { limit }) => {
+      return await chatController.getMessages(limit);
+    }
   },
 
 
   Mutation: {
+    //here the mutation the same except we mutate so more logic
     addUser: async (_, args, { loaders }) => {
       try {
         const user = new User(args);
@@ -77,6 +87,21 @@ const resolvers = {
         throw new Error('Failed to add exam');
       }
     },
+    sendMessage: async (_,{content, senderId}) => {
+      const message = await chatController.createMessage(content, senderId);
+      pubsub.publish(NEW_MESSAGE, { newMessage: message});
+      return message;
+    },
+  },
+  //here is another part of graphql capabilitis the subscription to message.
+  Subscription: {
+    newMessage: {
+      subscribe: () => pubsub.asyncIterator(NEW_MESSAGE)
+    }
+  },
+  // This is for nestation so parent is important
+  Message: {
+    sender: async (parent, _, { loaders }) => await loaders.userLoader.load(parent.senderId)
   },
   User: {
     enrolledCourses: async (parent, _, { loaders }) => {
@@ -112,5 +137,11 @@ const resolvers = {
     createdBy: (parent, _, { loaders }) => loaders.userLoader.load(parent.createdBy),
   },
 };
+
+
+
+
+
+
 
 export default resolvers;
