@@ -101,7 +101,7 @@ const resolvers = {
   },
   // This is for nestation so parent is important
   Message: {
-    sender: async (parent, _, { loaders }) => await loaders.userLoader.load(parent.senderId)
+    sender: async (parent, _, { loaders }) => await loaders.userLoader.load(parent.sender)
   },
   User: {
     enrolledCourses: async (parent, _, { loaders }) => {

@@ -1,13 +1,15 @@
 import mongoose from 'mongoose';
 import { ApolloServer } from 'apollo-server-express';
 import express from 'express';
-import  { createServer } from 'http';
+import { createServer } from 'http';
 import { execute, subscribe } from "graphql";
-import { SubscriptionServer } from 'subscriptions-transport-ws';
-import { makeExecutableSchema } from '@graphql-tools/schema'
+import { WebSocketServer } from 'ws';
+import { useServer } from 'graphql-ws/lib/use/ws';
+import { makeExecutableSchema } from '@graphql-tools/schema';
 import typeDefs from './graphql/typdefs.js';
 import resolvers from './graphql/resolver.js';
-import createLoaders from './loaders/dataloaders.js'
+import createLoaders from './loaders/dataloaders.js';
+import chatSocket from "./socket/chatSocket.js";
 
 
 
@@ -27,10 +29,13 @@ const startServer = async () => {
   await server.start();
 
   server.applyMiddleware({ app });
-  SubscriptionServer.create(
-      {schema, execute, subscribe},
-      {server: httpServer, path: server.graphqlPath}
-  );
+
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: server.graphqlPath,
+  });
+  useServer({ schema, execute, subscribe }, wsServer);
+  const io = chatSocket(httpServer)
 
   mongoose.connect('mongodb://localhost:27017/School', {
     useNewUrlParser: true,
@@ -40,9 +45,10 @@ const startServer = async () => {
       .catch(err => console.error('MongoDB connection error:', err));
 
   const PORT = process.env.PORT || 4000;
-  app.listen({ port: PORT }, () =>
-      console.log(`Server ready at http://localhost:${PORT}${server.graphqlPath}`)
-  );
+  httpServer.listen(PORT, () => {
+    console.log(`Server ready at http://localhost:${PORT}${server.graphqlPath}`);
+    console.log(`Subscriptions ready at ws://localhost:${PORT}${server.graphqlPath}`);
+  });
 };
 
 // Start the server
