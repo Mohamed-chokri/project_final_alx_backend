@@ -1,12 +1,16 @@
 import jwt  from 'jsonwebtoken';
 import User from '../models/Users.js';
 import dotenv from 'dotenv';
+import e from "express";
 dotenv.config();
 
-const generateToken = (user) => {
+const generateAccsessToken = (user) => {
     return jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 };
 
+const generateRefreshToken = (user) => {
+    return jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { exporesIn: '7d'});
+}
 export default {
     register: async (_, { fullName, email, password, role }) => {
 
@@ -20,8 +24,11 @@ export default {
         await user.save();
 
         // Return the token
-        const token = generateToken(user);
-        return { token, user };
+        const accessToken = generateToken(user);
+        const refreshToken = generateRefreshToken(user);
+        user.refreshToken = refreshToken;
+        user.save()
+        return { accessToken, refreshToken,user };
     },
 
     login: async (_, { email, password }) => {
@@ -35,7 +42,40 @@ export default {
             throw new Error('Invalid credentials');
         }
 
-        const token = generateToken(user);
-        return { token, user };
+        const accessToken = generateToken(user);
+        const refreshToken = generateRefreshToken(user);
+        user.refreshToken = refreshToken;
+        await user.save()
+        return { accessToken, refreshToken,user };
+    },
+
+    refreshToken: async (_, { refreshToken }) => {
+        if (!refreshToken) {
+            throw new Error('Refresh Token is required');
+        }
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const user = User.findById(decoded.id);
+        if (!user || refreshToken !== user.refreshToken)
+        {
+            throw new Error('refreshToken is not valid');
+        }
+        try{const newAccessToken = generateAccsessToken(user);
+            const newRefreshToken = generateRefreshToken(user);
+            user.refreshToken = newRefreshToken;
+            await user.save();
+            return{accessToken: newAccessToken, refreshToken: newRefreshToken};
+        } catch (error){
+            throw new Error('Invalid refresh token')
+        }
+    },
+    logout: async (_, __, { user }) => {
+        if (!user) {
+            throw new Error('Authentication required');
+        }
+
+        user.refreshToken = null;
+        await user.save();
+
+        return true;
     }
-};
+}
