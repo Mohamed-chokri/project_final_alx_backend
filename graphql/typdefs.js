@@ -65,6 +65,11 @@ const typeDefs = gql`
       createdAt: String!
   }
 
+  type AuthPayload {
+      token: String!
+      user: User!
+  }
+
   type Query {
       user(id: ID!): User
       users(page: Int, limit: Int): UserConnection!
@@ -79,7 +84,9 @@ const typeDefs = gql`
     addUser(fullName: String!, email: String!, password: String!, role: String!): User
     addCourse(title: String!, description: String!, instructorId: ID!): Course
     addExam(title: String!, courseId: ID!, questions: [QuestionInput], createdById: ID!, duration: String!): Exam
-    sendMessage(content: String, senderId: ID!): Message!  
+    sendMessage(content: String, senderId: ID!): Message!
+      register(fullName: String!, email: String!, password: String!, role: String!): AuthPayload!
+      login(email: String!, password: String!): AuthPayload!
   }
 
   input QuestionInput {

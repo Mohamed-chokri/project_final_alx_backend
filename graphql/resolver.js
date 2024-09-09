@@ -3,6 +3,7 @@ import Course from '../models/Courses.js';
 import Exam from '../models/Exams.js';
 import chatController from '../controllers/chatController.js'
 import { PubSub } from "graphql-subscriptions";
+import authController from "../controllers/authController.js";
 
 const pubsub =  new PubSub();
 const NEW_MESSAGE = 'NEW_MESSAGE';
@@ -87,11 +88,13 @@ const resolvers = {
         throw new Error('Failed to add exam');
       }
     },
-    sendMessage: async (_,{content, senderId}) => {
-      const message = await chatController.createMessage(content, senderId);
-      pubsub.publish(NEW_MESSAGE, { newMessage: message});
-      return message;
-    },
+    register: authController.register,
+    login: authController.login,
+      sendMessage: async (_,{content, senderId}) => {
+        const message = await chatController.createMessage(content, senderId);
+        pubsub.publish(NEW_MESSAGE, { newMessage: message});
+        return message;
+      }
   },
   //here is another part of graphql capabilitis the subscription to message.
   Subscription: {
