@@ -1,8 +1,10 @@
 import { Server } from 'socket.io';
-import User from "../models/Users.js";
 import chatController from "../controllers/chatController.js";
 export default function (server) {
-    const io = new Server(server);
+    const io = new Server(server,{
+        cors: {
+            origin: "*", methods: ["GET", "POST"]
+        }});
 
     io.on('connection', (socket) => {
         console.log('New client connected: ' + socket.id);
@@ -11,6 +13,7 @@ export default function (server) {
             try {
                 const { senderId, content } = data;
                 const message = await chatController.createMessage(content, senderId);
+                console.log('Message created:', message); // Log created message
                 io.emit('newMessage', message);
             } catch (err) {
                 console.error('Error saving message:', err);
