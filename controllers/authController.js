@@ -1,7 +1,7 @@
 import jwt  from 'jsonwebtoken';
 import User from '../models/Users.js';
 import dotenv from 'dotenv';
-import e from "express";
+import {setRefreshTokenCookie} from '../utils/helper.js'
 dotenv.config();
 
 const generateAccsessToken = (user) => {
@@ -12,7 +12,7 @@ const generateRefreshToken = (user) => {
     return jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d'});
 }
 export default {
-    register: async (_, { fullName, email, password, role }) => {
+    register: async (_, { fullName, email, password, role }, { res }) => {
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -27,11 +27,12 @@ export default {
         const accessToken = generateAccsessToken(user);
         const refreshToken = generateRefreshToken(user);
         user.refreshToken = refreshToken;
+        setRefreshTokenCookie(res, refreshToken);
         await user.save()
         return { accessToken, refreshToken, user };
     },
 
-    login: async (_, { email, password }) => {
+    login: async (_, { email, password }, { res }) => {
         const user = await User.findOne({ email });
         if (!user) {
             throw new Error('Invalid credentials');
@@ -44,8 +45,9 @@ export default {
         const accessToken = generateAccsessToken(user);
         const refreshToken = generateRefreshToken(user);
         user.refreshToken = refreshToken;
+        setRefreshTokenCookie(res, refreshToken)
         await user.save()
-        return { accessToken, refreshToken,user };
+        return { accessToken, user };
     },
 
     refreshToken: async (_, { refreshToken }) => {
@@ -60,10 +62,8 @@ export default {
         }
         try{
             const newAccessToken = generateAccsessToken(user);
-            const newRefreshToken = generateRefreshToken(user);
-            user.refreshToken = newRefreshToken;
             await user.save();
-            return{accessToken: newAccessToken, refreshToken: newRefreshToken};
+            return{ accessToken: newAccessToken };
         } catch (error){
             throw new Error('Invalid refresh token')
         }

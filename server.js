@@ -8,7 +8,7 @@ import { useServer } from 'graphql-ws/lib/use/ws';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import typeDefs from './graphql/typdefs.js';
 import resolvers from './graphql/resolver.js';
-import getUserByHeader from "./utils/helper.js";
+import {getUserByHeader} from "./utils/helper.js";
 import createLoaders from './loaders/dataloaders.js';
 import chatSocket from "./socket/chatSocket.js";
 
@@ -22,11 +22,11 @@ const startServer = async () => {
   // Create an instance of ApolloServer
   const server = new ApolloServer({
     schema,
-    context: async ({ req }) => {
+    context: async ({ req, res }) => {
       const user = await getUserByHeader({ req });
       return {
         loaders: createLoaders(),
-        user,};
+        user, res};
     }
   });
 

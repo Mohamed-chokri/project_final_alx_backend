@@ -67,13 +67,11 @@ const typeDefs = gql`
 
   type AuthPayload {
       accessToken: String!
-      refreshToken: String!
       user: User!
   }
 
   type refreshTokenPayload {
       accessToken: String!
-      refreshToken: String!
   }
 
   type Query {

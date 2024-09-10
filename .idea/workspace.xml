@@ -5,11 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8701d1f4-47fe-441b-ba04-0b96ef373159" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/graphql/resolver.js" beforeDir="false" afterPath="$PROJECT_DIR$/graphql/resolver.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/authController.js" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/authController.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/graphql/typdefs.js" beforeDir="false" afterPath="$PROJECT_DIR$/graphql/typdefs.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/Users.js" beforeDir="false" afterPath="$PROJECT_DIR$/models/Users.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/server.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/helper.js" beforeDir="false" afterPath="$PROJECT_DIR$/utils/helper.js" afterDir="false" />
     </list>
@@ -105,7 +103,10 @@
       <workItem from="1725902164860" duration="14115000" />
       <workItem from="1725917529325" duration="34000" />
       <workItem from="1725917570196" duration="12000" />
-      <workItem from="1725954626354" duration="11098000" />
+      <workItem from="1725954626354" duration="11282000" />
+      <workItem from="1725971756960" duration="3858000" />
+      <workItem from="1725977122335" duration="4203000" />
+      <workItem from="1725983839719" duration="2036000" />
     </task>
     <servers />
   </component>
