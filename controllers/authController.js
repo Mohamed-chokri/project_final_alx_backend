@@ -5,11 +5,11 @@ import e from "express";
 dotenv.config();
 
 const generateAccsessToken = (user) => {
-    return jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    return jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
 };
 
 const generateRefreshToken = (user) => {
-    return jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { exporesIn: '7d'});
+    return jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d'});
 }
 export default {
     register: async (_, { fullName, email, password, role }) => {
@@ -24,11 +24,11 @@ export default {
         await user.save();
 
         // Return the token
-        const accessToken = generateToken(user);
+        const accessToken = generateAccsessToken(user);
         const refreshToken = generateRefreshToken(user);
         user.refreshToken = refreshToken;
-        user.save()
-        return { accessToken, refreshToken,user };
+        await user.save()
+        return { accessToken, refreshToken, user };
     },
 
     login: async (_, { email, password }) => {
@@ -41,8 +41,7 @@ export default {
         if (!isMatch) {
             throw new Error('Invalid credentials');
         }
-
-        const accessToken = generateToken(user);
+        const accessToken = generateAccsessToken(user);
         const refreshToken = generateRefreshToken(user);
         user.refreshToken = refreshToken;
         await user.save()
@@ -54,12 +53,13 @@ export default {
             throw new Error('Refresh Token is required');
         }
         const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-        const user = User.findById(decoded.id);
+        const user = await User.findById(decoded.id);
         if (!user || refreshToken !== user.refreshToken)
         {
             throw new Error('refreshToken is not valid');
         }
-        try{const newAccessToken = generateAccsessToken(user);
+        try{
+            const newAccessToken = generateAccsessToken(user);
             const newRefreshToken = generateRefreshToken(user);
             user.refreshToken = newRefreshToken;
             await user.save();
