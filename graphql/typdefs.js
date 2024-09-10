@@ -61,13 +61,19 @@ const typeDefs = gql`
   type Message{
       id: ID!
       content: String!
-      sender: User!
+      sender: ID!
       createdAt: String!
   }
 
   type AuthPayload {
-      token: String!
+      accessToken: String!
+      refreshToken: String!
       user: User!
+  }
+
+  type refreshTokenPayload {
+      accessToken: String!
+      refreshToken: String!
   }
 
   type Query {
@@ -87,6 +93,8 @@ const typeDefs = gql`
     sendMessage(content: String, senderId: ID!): Message!
       register(fullName: String!, email: String!, password: String!, role: String!): AuthPayload!
       login(email: String!, password: String!): AuthPayload!
+      refreshToken(refreshToken: String!):  refreshTokenPayload
+      logout: Boolean
   }
 
   input QuestionInput {

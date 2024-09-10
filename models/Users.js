@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   role: { type: String, required: true },
   enrolledCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
   createdExams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exam' }],
+  refreshToken: {type: String, required: false},
 });
 
 // Hash password before saving

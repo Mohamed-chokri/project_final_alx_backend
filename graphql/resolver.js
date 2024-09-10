@@ -90,6 +90,8 @@ const resolvers = {
     },
     register: authController.register,
     login: authController.login,
+    logout: authController.logout,
+    refreshToken: authController.refreshToken,
       sendMessage: async (_,{content, senderId}) => {
         const message = await chatController.createMessage(content, senderId);
         pubsub.publish(NEW_MESSAGE, { newMessage: message});
@@ -101,10 +103,6 @@ const resolvers = {
     newMessage: {
       subscribe: () => pubsub.asyncIterator(NEW_MESSAGE)
     }
-  },
-  // This is for nestation so parent is important
-  Message: {
-    sender: async (parent, _, { loaders }) => await loaders.userLoader.load(parent.sender)
   },
   User: {
     enrolledCourses: async (parent, _, { loaders }) => {
