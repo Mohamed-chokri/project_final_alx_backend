@@ -2,7 +2,7 @@ import { io } from 'socket.io-client';
 import readline from 'readline';
 
 // Connect to the Socket.IO server
-const socket = io('http://localhost:4000');
+const socket = io('http://localhost:4000/socket.io');
 
 // Handle successful connection
 socket.on('connect', () => {

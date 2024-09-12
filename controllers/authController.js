@@ -2,6 +2,8 @@ import jwt  from 'jsonwebtoken';
 import User from '../models/Users.js';
 import dotenv from 'dotenv';
 import {setRefreshTokenCookie} from '../utils/helper.js'
+import { AuthenticationError } from "apollo-server-express";
+
 dotenv.config();
 
 const generateAccsessToken = (user) => {
@@ -19,63 +21,57 @@ export default {
             throw new Error('User already exists');
         }
 
-        // Create a new user
         const user = new User({ fullName, email, password, role });
+        user.accessToken = generateAccsessToken(user);
+        user.refreshToken = generateRefreshToken(user);
+        setRefreshTokenCookie(res, user.refreshToken);
         await user.save();
-
-        // Return the token
-        const accessToken = generateAccsessToken(user);
-        const refreshToken = generateRefreshToken(user);
-        user.refreshToken = refreshToken;
-        setRefreshTokenCookie(res, refreshToken);
-        await user.save()
-        return { accessToken, refreshToken, user };
+        return { accessToken: user.accessToken, user };
     },
 
     login: async (_, { email, password }, { res }) => {
         const user = await User.findOne({ email });
         if (!user) {
-            throw new Error('Invalid credentials');
+            throw new Error('email is not registered');
         }
 
         const isMatch = await user.matchPassword(password);
         if (!isMatch) {
             throw new Error('Invalid credentials');
         }
-        const accessToken = generateAccsessToken(user);
-        const refreshToken = generateRefreshToken(user);
-        user.refreshToken = refreshToken;
-        setRefreshTokenCookie(res, refreshToken)
-        await user.save()
-        return { accessToken, user };
+        user.accessToken = generateAccsessToken(user);
+        user.refreshToken = generateRefreshToken(user);
+        setRefreshTokenCookie(res, user.refreshToken);
+        await user.save();
+        return { accessToken: user.accessToken, user };
     },
 
-    refreshToken: async (_, { refreshToken }) => {
-        if (!refreshToken) {
+    refreshToken: async (_, __,{ cookies }) => {
+        const token = cookies.jid;
+        if (!token) {
             throw new Error('Refresh Token is required');
         }
-        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        let decoded = null;
+        try {
+            decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+        } catch (error) {
+            throw new Error('Invalid refresh token');
+        }
         const user = await User.findById(decoded.id);
-        if (!user || refreshToken !== user.refreshToken)
+        if (!user || token !== user.refreshToken)
         {
-            throw new Error('refreshToken is not valid');
+            throw new Error('Refresh token not valid');
         }
-        try{
-            const newAccessToken = generateAccsessToken(user);
-            await user.save();
-            return{ accessToken: newAccessToken };
-        } catch (error){
-            throw new Error('Invalid refresh token')
-        }
+        user.accessToken = generateAccsessToken(user);
+        return{ accessToken: user.accessToken };
     },
-    logout: async (_, __, { user }) => {
+    logout: async (_, __, { user ,res}) => {
         if (!user) {
-            throw new Error('Authentication required');
+            throw new AuthenticationError('not Authorized')
         }
-
+        user.accessToken = null;
         user.refreshToken = null;
         await user.save();
-
         return true;
     }
 }

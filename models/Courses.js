@@ -10,7 +10,8 @@ const courseSchema = new mongoose.Schema({
   }],
   enrolledStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   exams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exam' }],
-  createdDate: { type: Date, default: Date.now }
+  createdDate: { type: Date, default: Date.now },
+  imageId: {type: mongoose.Schema.Types.ObjectId, ref: 'Image', required: false},
 });
 
 const Course = mongoose.model('Course', courseSchema);
