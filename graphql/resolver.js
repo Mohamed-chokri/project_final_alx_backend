@@ -1,6 +1,10 @@
 import User from '../models/Users.js';
 import Course from '../models/Courses.js';
 import Exam from '../models/Exams.js';
+import Lesson from '../models/Lesson.js'
+import Section from '../models/Section.js'
+import Question from '../models/Qst.js'
+
 import chatController from '../controllers/chatController.js'
 import { PubSub } from "graphql-subscriptions";
 import authController from "../controllers/authController.js";
@@ -96,6 +100,115 @@ const resolvers = {
         throw new Error('Failed to add exam');
       }
     },
+    addSection: async (_, { title, courseId, lessons }, { loaders }) => {
+      try {
+        const section = new Section({ title, course: courseId });
+        if (lessons) {
+          // Handle lessons if provided
+          section.lessons = lessons; 
+                }
+        await section.save();
+        return loaders.sectionLoader.load(section.id);
+      } catch (error) {
+        console.error('Error adding section:', error);
+        throw new Error('Failed to add section');
+      }
+    },
+    addLesson: async (_, { title, description, sectionId, videoUrl, pdfUrl }, { loaders }) => {
+      try {
+        const lesson = new Lesson({ title, description, section: sectionId, videoUrl, pdfUrl });
+        await lesson.save();
+        return loaders.lessonLoader.load(lesson.id);
+      } catch (error) {
+        console.error('Error adding lesson:', error);
+        throw new Error('Failed to add lesson');
+      }
+    },
+    addExam: async (_, { title, description, courseId, sectionId, lessonId, questions, createdById, duration }, { loaders }) => {
+      try {
+        const exam = new Exam({
+          title,
+          description,
+          course: courseId,
+          section: sectionId,
+          lesson: lessonId,
+          questions,
+          createdBy: createdById,
+          duration
+        });
+        await exam.save();
+    
+        // Optional: Handle questions if needed
+        if (questions) {
+          // Assume questions are processed separately
+        }
+    
+        return loaders.examLoader.load(exam.id);
+      } catch (error) {
+        console.error('Error adding exam:', error);
+        throw new Error('Failed to add exam');
+      }
+    },
+    addQuestion: async (_, { title, description, examId, answers }, { loaders }) => {
+      try {
+        const question = new Question({
+          title,
+          description,
+          exam: examId,
+          answers
+        });
+        await question.save();
+    
+        // Optional: Handle answers if needed
+        if (answers) {
+          // Assume answers are processed separately
+        }
+    
+        return loaders.questionLoader.load(question.id);
+      } catch (error) {
+        console.error('Error adding question:', error);
+        throw new Error('Failed to add question');
+      }
+    },
+    addAnswer: async (_, { title, questionId, isCorrect }, { loaders }) => {
+      try {
+        const answer = new Answer({
+          title,
+          question: questionId,
+          isCorrect
+        });
+        await answer.save();
+    
+        return loaders.answerLoader.load(answer.id);
+      } catch (error) {
+        console.error('Error adding answer:', error);
+        throw new Error('Failed to add answer');
+      }
+    },
+    addEnrollment: async (_, { courseId, sectionId, lessonId, studentId, enrollmentDate, studentName, progress, status }, { loaders }) => {
+      try {
+        const enrollment = new Enrollment({
+          course: courseId,
+          section: sectionId,
+          lesson: lessonId,
+          student: studentId,
+          enrollmentDate,
+          studentName,
+          progress,
+          status
+        });
+        await enrollment.save();
+    
+        return loaders.enrollmentLoader.load(enrollment.id);
+      } catch (error) {
+        console.error('Error adding enrollment:', error);
+        throw new Error('Failed to add enrollment');
+      }
+    },
+
+    
+    
+    
     register: authController.register,
     login: authController.login,
     logout: authController.logout,
