@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   enrolledCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
   createdExams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exam' }],
   refreshToken: {type: String, required: false},
+  profilePicture: { type: String },
 });
 
 // Hash password before saving

@@ -19,11 +19,22 @@ const typeDefs = gql`
     lessons: [Lesson]
     enrolledStudents: [User]
     exams: [Exam]
+    sections: [Section]!
+  }
+  type Section {
+    id: ID!
+    title: String!
+    Courseid: Int!
+    lessons: [Lesson]!
   }
 
   type Lesson {
     title: String!
     content: String!
+    description: String!
+    Sectionid: Int!
+    videoUrl: String
+    pdfurl: String
   }
 
   type Exam {
