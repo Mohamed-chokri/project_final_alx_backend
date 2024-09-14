@@ -24,6 +24,14 @@ const resolvers = {
         currentPage: page
       };
     },
+    courseByCategory: async (_, { category }) => {
+      try {
+        const courses = await Course.find({ category });
+        return courses;
+      } catch (error) {
+        throw new Error('Failed to fetch courses');
+      }
+    },
     course: (_, { id }, { loaders }) => loaders.courseLoader.load(id),
     courses: async (_, { page = 1, limit = 10 }) => {
       const skip = (page - 1) * limit;
@@ -68,9 +76,9 @@ const resolvers = {
         throw new Error('Failed to add user');
       }
     },
-    addCourse: async (_, { title, description, instructorId }, { loaders }) => {
+    addCourse: async (_, { title, description, instructorId ,category}, { loaders }) => {
       try {
-        const course = new Course({ title, description, instructor: instructorId });
+        const course = new Course({ title, description, instructor: instructorId,category });
         await course.save();
         return loaders.courseLoader.load(course.id);
       } catch (error) {

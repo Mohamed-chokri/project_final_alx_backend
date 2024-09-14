@@ -8,6 +8,7 @@ const courseSchema = new mongoose.Schema({
     title: String,
     content: String
   }],
+  category: {type: String , required:true},
   enrolledStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   exams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exam' }],
   createdDate: { type: Date, default: Date.now }
