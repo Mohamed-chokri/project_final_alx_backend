@@ -6,7 +6,7 @@ import { Image, File } from "../models/Files.js";
 import { Types } from 'mongoose';
 import Course from "../models/Courses.js";
 
-const BASE_FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
+const BASE_FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager'; //put here your windows path
 
 class FilesController {
     static async postFile(req, res) {
@@ -42,7 +42,7 @@ class FilesController {
             const oldFile = await Image.findOneAndDelete({ owner: user.id, courseId });
             if (oldFile) {
                 try {
-                    fs.unlinkSync(path.resolve(oldFile.localPath)).catch(console.error);
+                    fs.unlinkSync(path.resolve(oldFile.localPath));
                 } catch (error) {}
             }
 
