@@ -4,6 +4,8 @@ import Exam from '../models/Exams.js';
 import Lesson from '../models/Lesson.js'
 import Section from '../models/Section.js'
 import Question from '../models/Qst.js'
+import Answer from '../models/Answer.js'
+import Enrollment from '../models/Enrollment.js'
 
 import chatController from '../controllers/chatController.js'
 import { PubSub } from "graphql-subscriptions";
@@ -102,30 +104,35 @@ const resolvers = {
     },
     addSection: async (_, { title, courseId, lessons }, { loaders }) => {
       try {
-        const section = new Section({ title, course: courseId });
+        const section = new Section({ title, Courseid: courseId });
+    
         if (lessons) {
-          // Handle lessons if provided
-          section.lessons = lessons; 
-                }
-        await section.save();
-        return loaders.sectionLoader.load(section.id);
+          section.lessons = lessons;
+        }
+    
+        const savedSection = await section.save();
+        return loaders.sectionLoader.load(savedSection._id.toString());
       } catch (error) {
-        console.error('Error adding section:', error);
+        console.error('Error adding section:', error.message, error.stack); // Detailed error logging
         throw new Error('Failed to add section');
       }
     },
-    addLesson: async (_, { title, description, sectionId, videoUrl, pdfUrl }, { loaders }) => {
+    
+    addLesson: async (_, { title, description, sectionId,content, videoUrl, pdfUrl }, { loaders }) => {
       try {
-        const lesson = new Lesson({ title, description, section: sectionId, videoUrl, pdfUrl });
-        await lesson.save();
-        return loaders.lessonLoader.load(lesson.id);
+        const lesson = new Lesson({ title, description,  section: sectionId,  content, videoUrl, pdfUrl });
+        const savedLesson = await lesson.save();
+        return loaders.lessonLoader.load(savedLesson._id.toString());
       } catch (error) {
-        console.error('Error adding lesson:', error);
+        console.error('Error adding lesson:', error.message, error.stack);
         throw new Error('Failed to add lesson');
       }
     },
+    
+    
     addExam: async (_, { title, description, courseId, sectionId, lessonId, questions, createdById, duration }, { loaders }) => {
       try {
+        // Create a new Exam instance
         const exam = new Exam({
           title,
           description,
@@ -136,19 +143,37 @@ const resolvers = {
           createdBy: createdById,
           duration
         });
-        await exam.save();
+    
+        // Save the exam to the database
+        const savedExam = await exam.save();
     
         // Optional: Handle questions if needed
-        if (questions) {
-          // Assume questions are processed separately
+        if (questions && questions.length > 0) {
+          // Process questions separately if required
         }
     
-        return loaders.examLoader.load(exam.id);
+        // Return the saved exam using the loader
+        return loaders.examLoader.load(savedExam.id);
       } catch (error) {
-        console.error('Error adding exam:', error);
+        // Log detailed error information
+        console.error('Error adding exam:', error.message);
+        console.error('Stack trace:', error.stack);
+        console.error('Input data:', {
+          title,
+          description,
+          courseId,
+          sectionId,
+          lessonId,
+          questions,
+          createdById,
+          duration
+        });
+    
         throw new Error('Failed to add exam');
       }
     },
+    
+    
     addQuestion: async (_, { title, description, examId, answers }, { loaders }) => {
       try {
         const question = new Question({
@@ -185,26 +210,19 @@ const resolvers = {
         throw new Error('Failed to add answer');
       }
     },
-    addEnrollment: async (_, { courseId, sectionId, lessonId, studentId, enrollmentDate, studentName, progress, status }, { loaders }) => {
+    addEnrollment: async (_, args, { loaders }) => {
       try {
-        const enrollment = new Enrollment({
-          course: courseId,
-          section: sectionId,
-          lesson: lessonId,
-          student: studentId,
-          enrollmentDate,
-          studentName,
-          progress,
-          status
-        });
-        await enrollment.save();
+        const enrollment = new Enrollment(args); // Create the enrollment using the entire args object
+        await enrollment.save(); // Save the new enrollment to the database
     
+        // Use DataLoader to load the saved enrollment by ID for consistency
         return loaders.enrollmentLoader.load(enrollment.id);
       } catch (error) {
         console.error('Error adding enrollment:', error);
         throw new Error('Failed to add enrollment');
       }
     },
+    
 
     
     

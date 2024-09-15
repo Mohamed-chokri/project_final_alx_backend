@@ -5,10 +5,10 @@ const courseSchema = new mongoose.Schema({
   description: { type: String, required: true },
   instructor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   category: { type: String, required: true },
-  lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
-  enrolledStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  exams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exam' }],
-  sections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Section' }]
+  lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson', default: [] }],
+  enrolledStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
+  exams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exam', default: [] }],
+  sections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Section', default: [] }]
 });
 
 const Course = mongoose.model('Course', courseSchema);

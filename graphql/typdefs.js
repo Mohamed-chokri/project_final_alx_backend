@@ -36,7 +36,7 @@ const typeDefs = gql`
   type Lesson {
     id: ID!
     title: String!
-    content: String!
+    content: String
     description: String!
     Sectionid: Int!
     videoUrl: String
@@ -45,35 +45,35 @@ const typeDefs = gql`
 
   type Enrollment {
     id: ID!
-    Courseid: Int!
-    Sectionid: Int!
-    Lessonid: Int!
-    studentId: Int!
-    enrollmentDate: String!
-    studentName: String!
-    Userid: Int!
-    progress: Int!
-    status: String!
+    Courseid: Int
+    Sectionid: Int
+    Lessonid: Int
+    studentId: Int
+    enrollmentDate: String
+    studentName: String
+    Userid: Int
+    progress: Int
+    status: String
   }
 
   type Question {
-    id: ID!
+    id: ID
     title: String!
     description: String!
-    Examid: Int!
+    examId: ID!
     status: String!
     answers: [Answer]!
   }
   type Exam {
-    id: ID!
-    title: String!
-    description: String!
-    Courseid: Int!
-    Sectionid: Int!
-    Lessonid: Int!
-    questions: [Question]!
-    course: Course!
+    id: ID
+    title: String
+    description: String
+    course: Course
+    section: Section
+    lesson: Lesson
+    questions: [Question]
     createdBy: User
+    duration: String
   }
   type Answer {
     id: ID!
@@ -139,7 +139,7 @@ const typeDefs = gql`
       dateJoined: String
       enabled: Boolean
     ): User
-    
+
     # Add a new course
     addCourse(
       title: String!
@@ -148,17 +148,14 @@ const typeDefs = gql`
       category: String!
       sections: [SectionInput]
     ): Course
-    
+
     # Add a new section to a course
-    addSection(
-      title: String!
-      courseId: ID!
-      lessons: [LessonInput]
-    ): Section
-    
+    addSection(title: String!, courseId: ID!, lessons: [LessonInput]): Section
+
     # Add a new lesson to a section
     addLesson(
       title: String!
+      content: String
       description: String!
       sectionId: ID!
       videoUrl: String
@@ -174,7 +171,7 @@ const typeDefs = gql`
       lessonId: ID
       questions: [QuestionInput]
       createdById: ID!
-      duration: String!
+      duration: String
     ): Exam
 
     # Add a new question to an exam
@@ -184,22 +181,18 @@ const typeDefs = gql`
       examId: ID!
       answers: [AnswerInput]
     ): Question
-    
+
     # Add a new answer to a question
-    addAnswer(
-      title: String!
-      questionId: ID!
-      isCorrect: Boolean!
-    ): Answer
-    
+    addAnswer(title: String!, questionId: ID!, isCorrect: Boolean!): Answer
+
     # Add a new enrollment
     addEnrollment(
-      courseId: ID!
+      courseId: ID
       sectionId: ID
       lessonId: ID
-      studentId: ID!
-      enrollmentDate: String!
-      studentName: String!
+      studentId: ID
+      enrollmentDate: String
+      studentName: String
       progress: Float
       status: String
     ): Enrollment
@@ -217,25 +210,25 @@ const typeDefs = gql`
   }
 
   input QuestionInput {
-    questionText: String!
+    questionText: String
     options: [String]
-    correctAnswer: String!
+    correctAnswer: String
   }
-    input SectionInput {
-  title: String!
-  courseId: ID!
-  lessons: [LessonInput]
-}
+  input SectionInput {
+    title: String!
+    courseId: ID!
+    lessons: [LessonInput]
+  }
 
-input LessonInput {
-  title: String!
-  description: String!
-  sectionId: ID!
-  videoUrl: String
-  pdfUrl: String
-}
+  input LessonInput {
+    title: String!
+    description: String!
+    sectionId: ID!
+    videoUrl: String
+    pdfUrl: String
+  }
 
-input AnswerInput {
+  input AnswerInput {
   title: String!
   isCorrect: Boolean!
 }
@@ -243,7 +236,6 @@ input AnswerInput {
   type Subscription {
     newMessage: Message!
   }
-
 `;
 
 export default typeDefs;
