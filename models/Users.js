@@ -8,7 +8,11 @@ const userSchema = new mongoose.Schema({
   enrolledCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
   createdExams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exam' }],
   refreshToken: {type: String, required: false},
+<<<<<<< HEAD
   accessToken: {type: String, required: false},
+=======
+  profilePicture: { type: String },
+>>>>>>> edit_graphql_logic
 });
 
 // Hash password before saving
