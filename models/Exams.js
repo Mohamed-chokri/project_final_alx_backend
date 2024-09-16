@@ -4,9 +4,9 @@ const examSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
   course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
-  section: { type: mongoose.Schema.Types.ObjectId, ref: 'Section' }, 
   lesson: { type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' },   
   questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }],
+  category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   duration: { type: String }
 });

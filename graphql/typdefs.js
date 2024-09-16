@@ -10,7 +10,6 @@ const typeDefs = gql`
     dateJoined: String!
     enabled: Boolean!
     courses: [Course]
-    enrollments: [Enrollment]
     enrolledCourses: [Course]
     createdExams: [Exam]
   }
@@ -20,40 +19,25 @@ const typeDefs = gql`
     title: String!
     description: String!
     instructor: User!
-    category: String!
-    sections: [Section]!
+    category: Category 
     lessons: [Lesson]
     enrolledStudents: [User]
     exams: [Exam]
-  }
-  type Section {
-    id: ID!
-    title: String!
-    Courseid: Int!
-    lessons: [Lesson]!
   }
 
   type Lesson {
     id: ID!
     title: String!
     content: String
+    category: Category 
     description: String!
-    Sectionid: Int!
     videoUrl: String
     pdfurl: String
   }
-
-  type Enrollment {
+  type Category {
     id: ID!
-    Courseid: Int
-    Sectionid: Int
-    Lessonid: Int
-    studentId: Int
-    enrollmentDate: String
-    studentName: String
-    Userid: Int
-    progress: Int
-    status: String
+    name: String
+    description: String
   }
 
   type Question {
@@ -61,7 +45,6 @@ const typeDefs = gql`
     title: String!
     description: String!
     examId: ID!
-    status: String!
     answers: [Answer]!
   }
   type Exam {
@@ -69,9 +52,9 @@ const typeDefs = gql`
     title: String
     description: String
     course: Course
-    section: Section
     lesson: Lesson
     questions: [Question]
+    category: Category 
     createdBy: User
     duration: String
   }
@@ -81,6 +64,12 @@ const typeDefs = gql`
     Questionid: Int! # Link to Question
     isCorrect: Boolean!
   }
+    type Category {
+  _id: ID!
+  name: String!
+  description: String
+  # Other fields as per your category schema
+}
 
   type UserConnection {
     users: [User!]!
@@ -140,24 +129,30 @@ const typeDefs = gql`
       enabled: Boolean
     ): User
 
+    updateUser(
+    id: ID!
+    fullName: String
+    email: String
+    profilePicture: String
+    enabled: Boolean
+  ): User
+
     # Add a new course
     addCourse(
       title: String!
       description: String!
       instructorId: ID!
-      category: String!
-      sections: [SectionInput]
+      category: ID!
     ): Course
 
-    # Add a new section to a course
-    addSection(title: String!, courseId: ID!, lessons: [LessonInput]): Section
+    addCategory(input: CategoryInput!): Category!
 
     # Add a new lesson to a section
     addLesson(
       title: String!
       content: String
       description: String!
-      sectionId: ID!
+      category: ID!
       videoUrl: String
       pdfUrl: String
     ): Lesson
@@ -166,9 +161,9 @@ const typeDefs = gql`
     addExam(
       title: String!
       description: String
-      courseId: ID!
-      sectionId: ID
+      courseId: ID
       lessonId: ID
+      category: ID
       questions: [QuestionInput]
       createdById: ID!
       duration: String
@@ -185,17 +180,6 @@ const typeDefs = gql`
     # Add a new answer to a question
     addAnswer(title: String!, questionId: ID!, isCorrect: Boolean!): Answer
 
-    # Add a new enrollment
-    addEnrollment(
-      courseId: ID
-      sectionId: ID
-      lessonId: ID
-      studentId: ID
-      enrollmentDate: String
-      studentName: String
-      progress: Float
-      status: String
-    ): Enrollment
 
     sendMessage(content: String, senderId: ID!): Message!
     register(
@@ -214,24 +198,23 @@ const typeDefs = gql`
     options: [String]
     correctAnswer: String
   }
-  input SectionInput {
-    title: String!
-    courseId: ID!
-    lessons: [LessonInput]
-  }
 
   input LessonInput {
     title: String!
     description: String!
-    sectionId: ID!
     videoUrl: String
     pdfUrl: String
   }
 
+  input CategoryInput {
+    name: String!
+    description: String
+    # Other input fields as per your category schema
+  }
   input AnswerInput {
-  title: String!
-  isCorrect: Boolean!
-}
+    title: String!
+    isCorrect: Boolean!
+  }
 
   type Subscription {
     newMessage: Message!

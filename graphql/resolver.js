@@ -2,10 +2,8 @@ import User from '../models/Users.js';
 import Course from '../models/Courses.js';
 import Exam from '../models/Exams.js';
 import Lesson from '../models/Lesson.js'
-import Section from '../models/Section.js'
 import Question from '../models/Qst.js'
-import Answer from '../models/Answer.js'
-import Enrollment from '../models/Enrollment.js'
+import Category  from '../models/Category.js'
 
 import chatController from '../controllers/chatController.js'
 import { PubSub } from "graphql-subscriptions";
@@ -82,6 +80,44 @@ const resolvers = {
         throw new Error('Failed to add user');
       }
     },
+    updateUser: async (_, { id, fullName, email, profilePicture, enabled }) => {
+      try {
+        const updatedUser = await User.findByIdAndUpdate(
+          id,
+          { fullName, email, profilePicture, enabled },
+          { new: true } // To return the updated document
+        );
+        return updatedUser;
+      } catch (error) {
+        throw new Error(`Failed to update user: ${error.message}`);
+      }
+    },
+    addCategory: async (_, { input }) => {
+      try {
+        const { name, description } = input;
+
+        // Check if category already exists
+        let existingCategory = await Category.findOne({ name });
+
+        // If category exists, return it
+        if (existingCategory) {
+          return existingCategory; // Return existing category
+        }
+
+        // Create new category
+        const newCategory = new Category({
+          name,
+          description,
+          // Other fields as per your schema definition
+        });
+
+        // Save category to database
+        const result = await newCategory.save();
+        return result;
+      } catch (error) {
+        throw new Error(`Failed to add category: ${error.message}`);
+      }
+    },
     addCourse: async (_, { title, description, instructorId ,category}, { loaders }) => {
       try {
         const course = new Course({ title, description, instructor: instructorId,category });
@@ -92,37 +128,37 @@ const resolvers = {
         throw new Error('Failed to add course');
       }
     },
-    addExam: async (_, { title, courseId, questions, createdById, duration }, { loaders }) => {
-      try {
-        const exam = new Exam({ title, course: courseId, questions, createdBy: createdById, duration });
-        await exam.save();
-        return loaders.examLoader.load(exam.id);
-      } catch (error) {
-        console.error('Error adding exam:', error);
-        throw new Error('Failed to add exam');
-      }
-    },
-    addSection: async (_, { title, courseId, lessons }, { loaders }) => {
-      try {
-        const section = new Section({ title, Courseid: courseId });
+
     
-        if (lessons) {
-          section.lessons = lessons;
+    addLesson: async (_, { title, content, description, category, videoUrl, pdfUrl, sectionId }, { loaders }) => {
+      try {
+        // Ensure category exists and is valid
+        const existingCategory = await Category.findById(category);
+        if (!existingCategory) {
+          throw new Error(`Category with ID ${category} not found`);
         }
-    
-        const savedSection = await section.save();
-        return loaders.sectionLoader.load(savedSection._id.toString());
-      } catch (error) {
-        console.error('Error adding section:', error.message, error.stack); // Detailed error logging
-        throw new Error('Failed to add section');
-      }
-    },
-    
-    addLesson: async (_, { title, description, sectionId,content, videoUrl, pdfUrl }, { loaders }) => {
-      try {
-        const lesson = new Lesson({ title, description,  section: sectionId,  content, videoUrl, pdfUrl });
+
+        // Create new lesson instance
+        const lesson = new Lesson({
+          title,
+          content,
+          description,
+          category: existingCategory._id, // Assign category ID
+          videoUrl,
+          pdfUrl,
+          section: sectionId, // Assuming 'section' is a field in your Lesson model
+        });
+
+        // Save lesson to database
         const savedLesson = await lesson.save();
-        return loaders.lessonLoader.load(savedLesson._id.toString());
+
+        // If DataLoader is used, load the lesson using DataLoader
+        if (loaders && loaders.lessonLoader) {
+          return loaders.lessonLoader.load(savedLesson._id.toString());
+        }
+
+        // Return the saved lesson directly if DataLoader is not used
+        return savedLesson;
       } catch (error) {
         console.error('Error adding lesson:', error.message, error.stack);
         throw new Error('Failed to add lesson');
@@ -147,13 +183,8 @@ const resolvers = {
         // Save the exam to the database
         const savedExam = await exam.save();
     
-        // Optional: Handle questions if needed
-        if (questions && questions.length > 0) {
-          // Process questions separately if required
-        }
-    
         // Return the saved exam using the loader
-        return loaders.examLoader.load(savedExam.id);
+        return loaders.examLoader.load(savedExam._id.toString());
       } catch (error) {
         // Log detailed error information
         console.error('Error adding exam:', error.message);
@@ -172,8 +203,6 @@ const resolvers = {
         throw new Error('Failed to add exam');
       }
     },
-    
-    
     addQuestion: async (_, { title, description, examId, answers }, { loaders }) => {
       try {
         const question = new Question({
@@ -210,19 +239,6 @@ const resolvers = {
         throw new Error('Failed to add answer');
       }
     },
-    addEnrollment: async (_, args, { loaders }) => {
-      try {
-        const enrollment = new Enrollment(args); // Create the enrollment using the entire args object
-        await enrollment.save(); // Save the new enrollment to the database
-    
-        // Use DataLoader to load the saved enrollment by ID for consistency
-        return loaders.enrollmentLoader.load(enrollment.id);
-      } catch (error) {
-        console.error('Error adding enrollment:', error);
-        throw new Error('Failed to add enrollment');
-      }
-    },
-    
 
     
     
@@ -242,6 +258,19 @@ const resolvers = {
     newMessage: {
       subscribe: () => pubsub.asyncIterator(NEW_MESSAGE)
     }
+  },
+  Lesson: {
+    category: async (lesson) => {
+      // Implement your resolver for the 'category' field if needed
+      // Example: Fetch category details from the database based on lesson.category
+      try {
+        const category = await Category.findById(lesson.category);
+        return category; // Return the category object
+      } catch (error) {
+        console.error('Error fetching category:', error.message);
+        throw new Error('Failed to fetch category for lesson');
+      }
+    },
   },
   User: {
     enrolledCourses: async (parent, _, { loaders }) => {
