@@ -8,32 +8,39 @@ import { useServer } from 'graphql-ws/lib/use/ws';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import typeDefs from './graphql/typdefs.js';
 import resolvers from './graphql/resolver.js';
-import getUserByHeader from "./utils/helper.js";
+import {getUserByHeader} from "./utils/helper.js";
 import createLoaders from './loaders/dataloaders.js';
 import chatSocket from "./socket/chatSocket.js";
+import cookieParser from'cookie-parser';
+import router from "./routes/index.js";
 
 
 
 const startServer = async () => {
   const app = express();
+  app.use(express.json({ limit: '50mb' }));
+  app.use(express.urlencoded({ limit: '50mb', extended: true }));
+  app.use(cookieParser());
+  app.use('/', router)
   const httpServer = createServer(app);
   const schema = makeExecutableSchema({ typeDefs, resolvers });
 
   // Create an instance of ApolloServer
   const server = new ApolloServer({
     schema,
-    context: async ({ req }) => {
-      const user = await getUserByHeader({ req });
+    context: async ({ req, res }) => {
+      const user = await getUserByHeader(req);
       return {
+        cookies: req.cookies,
         loaders: createLoaders(),
-        user,};
-    }
+        user, res, req};
+    },
+    introspection: process.env.NODE_ENV !== 'production',
   });
 
   await server.start();
 
   server.applyMiddleware({ app });
-  app.use(express.json())
   const wsServer = new WebSocketServer({
     server: httpServer,
     path: server.graphqlPath,
@@ -52,10 +59,11 @@ const startServer = async () => {
   httpServer.listen(PORT, () => {
     console.log(`Server ready at http://localhost:${PORT}${server.graphqlPath}`);
     console.log(`Subscriptions ready at ws://localhost:${PORT}${server.graphqlPath}`);
+    console.log(`Chat server ready at http://localhost:${PORT}/socket.io`);
   });
 };
 
 // Start the server
-startServer();
+await startServer();
 console.log(typeDefs);
 console.log(resolvers);
