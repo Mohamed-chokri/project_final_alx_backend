@@ -1,11 +1,10 @@
 import { Server } from 'socket.io';
 import chatController from "../controllers/chatController.js";
-export default function (httpServer) {
-    const io = new Server(httpServer, {
-        path: '/socket.io',
+export default function (server) {
+    const io = new Server(server,{
         cors: {
             origin: "*", methods: ["GET", "POST"]
-        }},);
+        }});
 
     io.on('connection', (socket) => {
         console.log('New client connected: ' + socket.id);
@@ -23,9 +22,6 @@ export default function (httpServer) {
 
         socket.on('disconnect', () => {
             console.log('Client disconnected: ' + socket.id);
-        });
-        socket.on('error', (error) => {
-            console.error('WebSocket error: ', error);
         });
     });
 
