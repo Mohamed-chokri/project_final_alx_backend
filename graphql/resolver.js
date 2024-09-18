@@ -294,6 +294,9 @@ const resolvers = {
       }
       return [];
     },
+      category: async (parent, _, { loaders }) => {
+        return loaders.categoryLoader.load(parent.categoryId);
+      },
     exams: async (parent, _, { loaders }) => {
       if (parent.exams && parent.exams.length > 0) {
         return loaders.examLoader.loadMany(parent.exams);
