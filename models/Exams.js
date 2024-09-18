@@ -5,13 +5,8 @@ const examSchema = new mongoose.Schema({
   description: { type: String, required: true },
   course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
   lesson: { type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' },   
-  questions: [
-    {
-      questionText: String,
-      options: [String],
-      correctAnswer: String,
-    }
-  ],  category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
+  questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }],
+  category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   duration: { type: String }
 });

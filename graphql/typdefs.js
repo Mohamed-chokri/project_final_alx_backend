@@ -19,7 +19,7 @@ const typeDefs = gql`
     title: String!
     description: String!
     instructor: User!
-    category: Category
+    category: Category 
     lessons: [Lesson]
     enrolledStudents: [User]
     exams: [Exam]
@@ -29,7 +29,7 @@ const typeDefs = gql`
     id: ID!
     title: String!
     content: String
-    category: Category
+    category: Category 
     description: String!
     videoUrl: String
     pdfurl: String
@@ -41,9 +41,11 @@ const typeDefs = gql`
   }
 
   type Question {
-    questionText: String!
-    options: [String!]!
-    correctAnswer: String!
+    id: ID
+    title: String!
+    description: String!
+    examId: ID!
+    answers: [Answer]!
   }
   type Exam {
     id: ID
@@ -52,7 +54,7 @@ const typeDefs = gql`
     course: Course
     lesson: Lesson
     questions: [Question]
-    category: Category
+    category: Category 
     createdBy: User
     duration: String
   }
@@ -62,12 +64,12 @@ const typeDefs = gql`
     Questionid: Int! # Link to Question
     isCorrect: Boolean!
   }
-  type Category {
-    _id: ID!
-    name: String!
-    description: String
-    # Other fields as per your category schema
-  }
+    type Category {
+  _id: ID!
+  name: String!
+  description: String
+  # Other fields as per your category schema
+}
 
   type UserConnection {
     users: [User!]!
@@ -95,14 +97,6 @@ const typeDefs = gql`
   }
 
   type AuthPayload {
-<<<<<<< HEAD
-      accessToken: String!
-      user: User!
-  }
-
-  type refreshTokenPayload {
-      accessToken: String!
-=======
     accessToken: String!
     refreshToken: String!
     user: User!
@@ -111,7 +105,6 @@ const typeDefs = gql`
   type refreshTokenPayload {
     accessToken: String!
     refreshToken: String!
->>>>>>> edit_graphql_logic
   }
 
   type Query {
@@ -121,7 +114,6 @@ const typeDefs = gql`
     courseByCategory(category: String!): [Course]
     courses(page: Int, limit: Int): CourseConnection!
     exam(id: ID!): Exam
-    examsByCategory(categoryId: ID!): [Exam!]!
     exams(page: Int, limit: Int): ExamConnection!
     messages(limit: Int): [Message]!
   }
@@ -138,12 +130,12 @@ const typeDefs = gql`
     ): User
 
     updateUser(
-      id: ID!
-      fullName: String
-      email: String
-      profilePicture: String
-      enabled: Boolean
-    ): User
+    id: ID!
+    fullName: String
+    email: String
+    profilePicture: String
+    enabled: Boolean
+  ): User
 
     # Add a new course
     addCourse(
@@ -168,10 +160,10 @@ const typeDefs = gql`
     # Add a new exam
     addExam(
       title: String!
-      description: String!
-      courseId: ID!
-      lessonId: ID!
-      category: ID!
+      description: String
+      courseId: ID
+      lessonId: ID
+      category: ID
       questions: [QuestionInput]
       createdById: ID!
       duration: String
@@ -187,6 +179,7 @@ const typeDefs = gql`
 
     # Add a new answer to a question
     addAnswer(title: String!, questionId: ID!, isCorrect: Boolean!): Answer
+
 
     sendMessage(content: String, senderId: ID!): Message!
     register(
