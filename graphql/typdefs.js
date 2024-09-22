@@ -32,40 +32,39 @@ const typeDefs = gql`
     category: Category
     description: String!
     videoUrl: String
-    pdfurl: String
+    pdfUrl: String
   }
+
   type Category {
     id: ID!
     name: String
     description: String
   }
-
-  type Question {
-    questionText: String!
-    options: [String!]!
-    correctAnswer: String!
-  }
-  type Exam {
+  type Answer {
     id: ID
     title: String
-    description: String
-    course: Course
-    lesson: Lesson
-    questions: [Question]
-    category: Category
-    createdBy: User
-    duration: String
+    isCorrect: Boolean
+    Questionid: ID
   }
-  type Answer {
+  type Question {
+    id: ID
+    title: String!
+    description: String
+    categoryId: ID!
+    courseId: ID!
+    sectionId: Int
+    status: String
+    answers: [Answer] # Nested array of answers
+  }
+
+  type Exam {
     id: ID!
     title: String!
-    Questionid: Int! # Link to Question
-    isCorrect: Boolean!
-  }
-  type Category {
-    _id: ID!
-    name: String!
-    description: String
+    description: String!
+    courseId: ID! # Reference to the Course
+    lessonId: ID! # Reference to the Lesson
+    sectionId: Int! # Updated to match the schema type
+    questions: [Question] # Nested array of questions
   }
 
   type UserConnection {
@@ -135,7 +134,6 @@ const typeDefs = gql`
       enabled: Boolean
     ): User
 
-    # Add a new course
     addCourse(
       title: String!
       description: String!
@@ -145,7 +143,6 @@ const typeDefs = gql`
 
     addCategory(input: CategoryInput!): Category!
 
-    # Add a new lesson to a section
     addLesson(
       title: String!
       content: String
@@ -155,19 +152,15 @@ const typeDefs = gql`
       pdfUrl: String
     ): Lesson
 
-    # Add a new exam
     addExam(
       title: String!
       description: String!
       courseId: ID!
       lessonId: ID!
-      category: ID!
-      questions: [QuestionInput]
-      createdById: ID!
-      duration: String
+      sectionId: Int!
+      questions: [QuestionInput!]!
     ): Exam
 
-    # Add a new question to an exam
     addQuestion(
       title: String!
       description: String!
@@ -175,8 +168,7 @@ const typeDefs = gql`
       answers: [AnswerInput]
     ): Question
 
-    # Add a new answer to a question
-    addAnswer(title: String!, questionId: ID!, isCorrect: Boolean!): Answer
+    addAnswer(title: String!, Questionid: ID!, isCorrect: Boolean!): Answer
 
     sendMessage(content: String, senderId: ID!): Message!
     register(
@@ -191,9 +183,17 @@ const typeDefs = gql`
   }
 
   input QuestionInput {
-    questionText: String
-    options: [String]
-    correctAnswer: String
+    title: String
+    description: String
+    categoryId: ID # Reference to the Category
+    courseId: ID # Reference to the Course
+    sectionId: Int
+    status: String
+    answers: [AnswerInput]
+  }
+  input AnswerInput {
+    title: String
+    isCorrect: Boolean
   }
 
   input LessonInput {
@@ -206,11 +206,12 @@ const typeDefs = gql`
   input CategoryInput {
     name: String!
     description: String
-    # Other input fields as per your category schema
   }
+
   input AnswerInput {
     title: String!
     isCorrect: Boolean!
+    Questionid: ID
   }
 
   type Subscription {

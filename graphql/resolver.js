@@ -4,7 +4,7 @@ import Exam from "../models/Exams.js";
 import Lesson from "../models/Lesson.js";
 import Question from "../models/Qst.js";
 import Category from "../models/Category.js";
-
+import mongoose from 'mongoose';
 import chatController from "../controllers/chatController.js";
 import { PubSub } from "graphql-subscriptions";
 import authController from "../controllers/authController.js";
@@ -198,56 +198,45 @@ const resolvers = {
       }
     },
 
-    addExam: async (
-      _,
-      {
-        title,
-        description,
-        courseId,
-        lessonId,
-        category,
-        questions,
-        createdById,
-        duration,
-      },
-      { loaders }
-    ) => {
+    addExam: async (_, { title, description, courseId, lessonId, sectionId, questions }, { loaders }) => {
       try {
-        // Create a new Exam instance with the category field
         const exam = new Exam({
-          title,
-          description,
-          course: courseId,
-          lesson: lessonId,
-          category,
-          questions,
-          createdBy: createdById,
-          duration,
-        });
-
-        // Save the exam to the database
-        const savedExam = await exam.save();
-
-        // Return the saved exam using the loader
-        return loaders.examLoader.load(savedExam._id.toString());
-      } catch (error) {
-        // Log detailed error information
-        console.error("Error adding exam:", error.message);
-        console.error("Stack trace:", error.stack);
-        console.error("Input data:", {
+          id: new mongoose.Types.ObjectId(),
           title,
           description,
           courseId,
           lessonId,
-          category,
-          questions,
-          createdById,
-          duration,
+          sectionId, 
+          questions: questions.map(question => {
+            const questionId = new mongoose.Types.ObjectId(); // Generate a new ObjectId for the question
+            return {
+              id: questionId, // Assign the generated ID to the question
+              title: question.title,
+              description: question.description,
+              categoryId: question.categoryId,
+              courseId: question.courseId,
+              sectionId: question.sectionId,
+              status: question.status,
+              answers: question.answers.map(answer => ({
+                title: answer.title,
+                isCorrect: answer.isCorrect,
+                Questionid: questionId.toString()  // Use the generated question ID
+              })),
+            };
+          }),
         });
-
+    
+        const savedExam = await exam.save();
+        return savedExam;
+      } catch (error) {
+        console.error("Error adding exam:", error);
         throw new Error("Failed to add exam");
       }
     },
+    
+    
+    
+    
 
     addQuestion: async (
       _,
@@ -374,14 +363,6 @@ const resolvers = {
 
   },
   Exam: {
-    course: (parent, _, { loaders }) =>
-      loaders.courseLoader.load(parent.course),
-    createdBy: (parent, _, { loaders }) =>
-      loaders.userLoader.load(parent.createdBy),
-    category: (parent, _, { loaders }) =>
-      loaders.CategoryLoader.load(parent.category),
-    lesson: (parent, _, { loaders }) =>
-      loaders.lessonLoader.load(parent.lesson),
     id: (parent) => parent._id || parent.id,
   },
 };
